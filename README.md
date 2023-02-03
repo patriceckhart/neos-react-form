@@ -69,6 +69,7 @@ final class PersonController extends ActionController
 ## Usage
 
 Your `onSubmit()` function should fetch a post request which passes a FormData object to the Neos Flow ActionController.
+A ready to use backend connector is in progress.
 
 ```javascript
 import * as React from "react";
