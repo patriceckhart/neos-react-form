@@ -7,6 +7,65 @@ Run
 yarn add neos-react-form
 ```
 
+## Neos Flow Controller
+
+````php
+<?php
+namespace Acme\Package\Controller\Api;
+
+/*
+ * This file is part of the Acme.Package package.
+ */
+
+use Neos\Flow\Annotations as Flow;
+use Neos\Flow\Mvc\Controller\ActionController;
+use Neos\Flow\Mvc\View\JsonView;
+use Acme\Package\Domain\Model\Person;
+use Neos\Flow\Property\TypeConverter\PersistentObjectConverter;
+use Acme\Package\Domain\Repository\PersonRepository;
+
+#[Flow\Scope("singleton")]
+final class PersonController extends ActionController
+{
+    /**
+     * @var string
+     */
+    protected $defaultViewObjectName = JsonView::class;
+
+    #[Flow\Inject]
+    protected PersonRepository $personRepository;
+
+    /** 
+     * initializeAction which later belongs in an abstract controller
+    */
+    protected function initializeAction() {
+        $arguments = $this->request->getArguments();
+        foreach ($arguments as $argumentIterator => $argument) {
+            $propertyMappingConfiguration = $this->arguments[$argumentIterator]->getPropertyMappingConfiguration();
+            $propertyMappingConfiguration->setTypeConverterOption(PersistentObjectConverter::class,
+                PersistentObjectConverter::CONFIGURATION_CREATION_ALLOWED, true );
+            $propertyMappingConfiguration->setTypeConverterOption(PersistentObjectConverter::class,
+                PersistentObjectConverter::CONFIGURATION_MODIFICATION_ALLOWED, true );
+            $propertyMappingConfiguration->allowAllProperties()->skipUnknownProperties();
+        }
+    }
+
+    public function createAction(Person $person): void
+    {
+        $this->personRepository->add($person);
+        $this->view->assign('value', ['response' => 'success', 'result' => $person]);
+    }
+
+    public function updateAction(Person $person): void
+    {
+        $this->personRepository->update($person);
+        $this->view->assign('value', ['response' => 'success', 'result' => $person]);
+    }
+
+}
+
+````
+
 ## Usage
 
 ```javascript
